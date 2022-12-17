@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FRNG</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed&display=swap" rel="stylesheet">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body onload="get_posts()">
+
+<div class="pic">
+  <div class="user_profile">
+    <img id="profile_img" src="https://cdn4.iconfinder.com/data/icons/avatars-xmas-giveaway/128/batman_hero_avatar_comics-512.png" alt="">
+    <p id="user_name"></p>
+  </div>
+  <h1>Welcome to FRNG</h1>
+  <div class="word">
+    <p>FRNG "flower energy"</p>
+    <p>by Elnura</p>
+  </div>
+  <div class="bt">
+    <button id="btn_white" onclick="popup()" class="btn btn-outline-light btn-lg">Log In</button>
+    <button id="btn_post" onclick="popup2()" class="btn btn-outline-light btn-lg">Create Post</button>
+  </div>
+</div>
+
+<div class="popup">
+  <div class="popup-content">
+    <!-- <form action="config.php" method="POST"> -->
+    <img onclick="close_popup()" src="./images/close.jpg" alt="" class="closed" width="7%">
+    <img src="images/logo.jpeg" alt="logo" width="10%">
+    <input id="username" type="text" placeholder="Username" name="username" required autofocus>
+    <input id="pass" type="password" placeholder="Password" name="password" required>
+    <input id="pass_again" type="password" placeholder="Password again" name="password" required>
+    <button id="log_btn" onclick="log_php(username.value, pass.value)" class="btn btn-outline-dark">Login</button>
+    <button id="reg_btn" onclick="reg_php(username.value, pass.value, pass_again.value)" class="btn btn-outline-dark">Register</button>
+    <label for="switch" id="register" onclick="reg_btn()">Don't have an account?</label>
+    <!-- <input type="submit" name="" id="" class="btn btn-outline-dark" value="Login"> -->
+    <!-- </form> -->
+  </div>
+</div>
+
+<div id="popup2">
+  <div class="popup-content2">
+    <form action="create_post.php" method="POST" enctype="multipart/form-data">
+      <img onclick="close_popup2()" src="./images/close.jpg" alt="" class="closed" width="7%">
+      <img src="images/logo.jpeg" alt="logo" width="10%">
+      <input id="title" type="text" placeholder="Title" name="title" required>
+      <textarea name="text" id="textarea" cols="50" rows="2" placeholder="Text"></textarea>
+      <p>Upload picture:</p>
+      <input type="file" name="image" id="image_up">
+      <!-- <button id="log_btn" onclick="create_post(title.value, textarea.value, image_up)" class="btn btn-outline-dark">Create Post</button> -->
+
+      <input type="submit" name="upload" id="" class="btn btn-outline-dark" value="POST">
+    </form>
+  </div>
+</div>
+
+
+
+<h2 id="txtHint"></h2>
+
+<div class="items">
+
+</div>
+
+<script src="./script.js"></script>
+<script>
+  var user = "";
+  function reg_btn(){
+    var s = document.getElementById("register");
+    if(s.innerHTML == "Don't have an account?"){
+      document.getElementById("reg_btn").style.display = "inline";
+      document.getElementById("log_btn").style.display = "none";
+      document.getElementById("pass_again").style.display = "block";
+      document.querySelector(".popup-content").style.height = "380px";
+      s.innerHTML = "You have an account?";
+    }
+    else{
+      document.getElementById("reg_btn").style.display = "none";
+      document.getElementById("log_btn").style.display = "inline";
+      document.getElementById("pass_again").style.display = "none";
+      document.querySelector(".popup-content").style.height = "320px";
+      s.innerHTML = "Don't have an account?";
+    }
+  }
+
+  function create_post(title, text, image){
+    if(username == ""){alert("login first!")}
+    else{
+      $.ajax({
+        url : 'create_post.php',
+        type : 'POST',
+        data: {username: user, title: title, text: text, image:image},
+        success : function (result) {
+          console.log (result); // Here, you need to use response by PHP file.
+          if(result == "Posted!") console.log('posted!');
+          else alert("Wrong");
+        },
+        error : function () {
+          console.log ('error');
+        }
+      });
+    }
+  }
+
+  function log_php(uname, pass){
+    $.ajax({
+      url : 'login.php',
+      type : 'POST',
+      data: {username: uname, password: pass},
+      success : function (result) {
+        console.log (result); // Here, you need to use response by PHP file.
+        if(result == "Logged IN!") {
+          login(uname);
+          user = uname;
+        }
+        else alert("Wrong input");
+      },
+      error : function () {
+        console.log ('error');
+      }
+    });
+  }
+
+  function reg_php(uname, pass, pass_again){
+    if(pass == pass_again){
+      $.ajax({
+        url : 'register.php',
+        type : 'POST',
+        data: {username: uname, password: pass},
+        success : function (result) {
+          console.log (result); // Here, you need to use response by PHP file.
+          if(result == "Success!") close_popup();
+          else alert("Wrong input");
+        },
+        error : function () {
+          console.log ('error');
+        }
+      });
+    }
+    else{
+      alert("different password inputs!");
+    }
+  }
+
+  function popup2(){
+    document.getElementById("popup2").style.display = "flex";
+    $("#popup2").animate({opacity: '1'} , "slow");
+    document.body.style.overflow = "hidden";
+  }
+
+  function close_popup2(){
+    $("#popup2").animate({opacity: '0'}, "slow");
+    document.body.style.margin = "0";
+    document.body.style.height = "100%";
+    document.body.style.overflow = "scroll";
+    document.querySelector("#popup2").style.display = "none";
+  }
+
+  function get_posts(){
+    $.ajax({
+      url : 'get_posts.php',
+      type : 'GET',
+      success : function (result) {
+        console.log (result); // Here, you need to use response by PHP file.
+        var array = result.split("\n");
+        var i;
+        for (i = 0; i < array.length-1; i++) {
+          var row = array[i].split("-");
+          add_post(row[0], row[1], row[2], row[3]);
+        }
+      },
+      error : function () {
+        console.log ('error');
+      }
+    });
+  }
+
+  function add_post(title, text, image, user){
+    var item = document.createElement("div");
+    item.className = "item";
+    var card = document.createElement("div");
+    card.className = "card";
+    var img = document.createElement("img");
+    img.className = "card-img-top";
+    img.src = "./images/"+image;
+    var card_body = document.createElement("div");
+    card_body.className = "card-body";
+
+    var x = document.createElement("h4");
+    x.className = "card-title";
+    x.appendChild(document.createTextNode(title));
+
+    var tex = document.createElement("h6");
+    tex.className = "card-text";
+    tex.appendChild(document.createTextNode(text));
+
+    var by = document.createElement("h6");
+    by.appendChild(document.createTextNode("by: "+user));
+
+    card_body.appendChild(x);
+    card_body.appendChild(tex);
+    card_body.appendChild(by);
+
+    card.appendChild(img);
+    card.appendChild(card_body);
+
+    item.appendChild(card);
+    document.querySelector(".items").appendChild(item);
+  }
+</script>
+
+<style>
+  #popup2{
+    background-color: rgb(0, 0, 0, 0.6);
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    display: none;
+    opacity: 0;
+    justify-content: center;
+    align-items: center;
+    z-index: 14;
+  }
+
+  #register{
+    padding: 10px 0;
+    cursor: pointer;
+    font-size: 14px;
+    display: block;
+    width: fit-content;
+  }
+  #pass_again, #reg_btn{
+    display: none;
+  }
+  textarea{
+    display: block;
+    margin: 10px auto;
+  }
+
+  .popup-content2{
+    height: 410px;
+    width: 500px;
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    position: relative;
+    text-align: center;
+  }
+  *{
+    margin: 0 auto;
+  }
+
+  body{
+    min-width: 700px;
+    background-color: rgb(236, 241, 236);
+    font-family: 'Roboto Condensed', sans-serif;
+    border-left: 3px solid black;
+    border-right: 3px solid black;
+  }
+
+  .pic{
+    background-image: url(images/main2.jpeg);
+    background-position-y: -100px;
+    width: 100%;
+    height: 500px;
+    background-size: cover;
+    text-align: center;
+    color: white;
+  }
+
+  h1{
+    padding-top: 100px;
+    font-size: 50px;
+    letter-spacing: 25px;
+  }
+
+  .word{
+    margin-top: 60px;
+    font-size: 20px;
+    border: 3px double white;
+    width: fit-content;
+    padding: 20px 20px 5px 20px;
+    font-style: italic;
+  }
+
+  .bt{
+    margin: 50px auto 0 auto;
+    color:white;
+  }
+
+  #btn_white{
+    font-size: 25px;
+    padding: 0 30px;
+  }
+
+  .items{
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0 200px;
+    font-size: 0;
+  }
+
+  #sol{
+    text-align: center;
+    margin: 70px 0 40px 0;
+    font-size: 40px;
+  }
+
+  .item{
+    margin: 20px auto;
+    text-align: center;
+
+  }
+
+  .motiv{
+    background-color: grey;
+    padding: 20px;
+    font-size: 16px;
+    color: white;
+  }
+
+  .card{
+    width: 300px;
+    height: 400px;
+  }
+
+  .card-img-top{
+    height: 220px;
+    object-fit: cover;
+  }
+
+  .btn{
+    margin-top: 20px;
+  }
+
+  .user_profile{
+    position: absolute;
+    display: none;
+    top: 40px;
+    right: 20px;
+    position: fixed;
+    margin: 0;
+    background-color: rgb(0, 0, 0, 0.4);
+    border-radius: 5px;
+    z-index: 1;
+  }
+
+  #user_name{
+    margin: 0;
+    padding: 10px;
+    display: inline;
+    font-size: 25px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+
+  #profile_img{
+    border-radius: 50%;
+    object-fit: cover;
+    width: 40px;
+    height: 40px;
+    display: inline;
+  }
+
+  .popup{
+    background-color: rgb(0, 0, 0, 0.6);
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    display: none;
+    opacity: 0;
+    justify-content: center;
+    align-items: center;
+    z-index: 1;
+  }
+
+  .popup-content{
+    height: 320px;
+    width: 500px;
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    position: relative;
+    text-align: center;
+  }
+
+  input{
+    margin: 20px auto;
+    display: block;
+    width: 50%;
+    padding: 8px;
+    border: 1px solid gray;
+  }
+
+  .closed{
+    position: absolute;
+    top: -15px;
+    right: -15px;
+    border-radius: 50%;
+    z-index: 2;
+    cursor: pointer;
+  }
+
+  #register{
+    padding: 10px 0;
+    cursor: pointer;
+    font-size: 14px;
+    display: block;
+    width: fit-content;
+  }
+  #pass_again, #reg_btn{
+    display: none;
+  }
+</style>
+<script>
+
+
+
+  function popup(){
+    var btn = document.getElementById("btn_white").innerHTML;
+    if(btn == "Log In"){
+      document.querySelector(".popup").style.display = "flex";
+      $(".popup").animate({opacity: '1'} , "slow");
+      document.body.style.overflow = "hidden";
+    }
+    else{
+      logout();
+    }
+  }
+
+  function close_popup(){
+    $(".popup").animate({opacity: '0'}, "slow");
+    document.body.style.margin = "0";
+    document.body.style.height = "100%";
+    document.body.style.overflow = "scroll";
+    document.getElementById("username").value = "";
+    document.getElementById("pass").value = "";
+    document.querySelector(".popup").style.display = "none";
+  }
+
+  function login(name){
+    document.querySelector(".user_profile").style.display = "inline";
+    document.getElementById("user_name").innerHTML = name;
+    document.getElementById("btn_white").innerHTML = "Log Out";
+    close_popup();
+  }
+
+  function logout(){
+    document.querySelector(".user_profile").style.display = "none";
+    document.getElementById("btn_white").innerHTML = "Log In";
+  }
+</script>
+</body>
+</html>
